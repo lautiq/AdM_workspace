@@ -1,0 +1,10 @@
+12:28:01 **** Incremental Build of configuration Debug for project Vector-c-ceros ****
+make -j16 all 
+arm-none-eabi-size   Vector-c-ceros.elf 
+   text	   data	    bss	    dec	    hex	filename
+   7692	     20	   1636	   9348	   2484	Vector-c-ceros.elf
+Finished building: default.size.stdout
+ 
+
+12:28:01 Build Finished. 0 errors, 0 warnings. (took 238ms)
+
