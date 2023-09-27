@@ -147,3 +147,53 @@ El uso de "shadow pointers" en los registros PSP y MSP es una característica fu
     - *`*Ahorro de tiempo y recursos:`* El uso de punteros sombreados simplifica el código de cambio de contexto en aplicaciones multitarea. En lugar de tener que mover y restaurar manualmente registros de pila y otros contextos, los punteros sombreados permiten un cambio de contexto más eficiente y rápido.
 
     - *`Flexibilidad en el diseño:`* Los punteros sombreados ofrecen flexibilidad al diseñador para administrar la memoria y el contexto de ejecución de manera más eficiente, permitiendo un mejor ajuste a los requisitos específicos de la aplicación.
+
+## Pregunta N° 6
+Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y
+como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo
+privilegiado a no priviligiado y nuevamente a privilegiado.
+
+## Respuesta N° 6
+
+El Cortex-M de ARM utiliza modos de privilegio y operación para controlar el acceso a recursos y funciones específicas del procesador. Estos modos ayudan a garantizar la seguridad y el aislamiento entre aplicaciones y el sistema operativo en sistemas embebidos. A continuación, se describen los principales modos de operación y sus relaciones en un Cortex-M:
+
+- *`Modo Thread (Privilegiado):`* También conocido como modo principal, es el modo en el que se ejecuta el código de aplicación principal. En este modo, se tiene acceso completo a todas las instrucciones y recursos del procesador.
+
+- *`Modo Handler (Privilegiado):`* Este modo se utiliza para manejar interrupciones y excepciones. Hay varios modos de Handler, uno para cada tipo de interrupción o excepción (por ejemplo, SVC, PendSV, SysTick, etc.). En estos modos, el código de manejo de interrupciones se ejecuta con privilegios completos.
+
+- *`Modo User (No Privilegiado):`* Este modo se utiliza para la ejecución de aplicaciones de usuario. En el modo de usuario, se restringe el acceso a ciertas instrucciones y registros especiales, lo que limita la capacidad de modificar el sistema y proporciona aislamiento.
+
+El cambio entre modos de privilegio se realiza mediante instrucciones especiales de excepción, como SVC (Supervisor Call) o eventos de interrupción (por ejemplo, interrupciones de hardware). Cuando ocurre un cambio de modo, el procesador almacena automáticamente el estado actual, incluyendo registros, en una pila apropiada (generalmente la pila de procesos, PSP, o la pila de excepciones, MSP) y carga el estado del nuevo modo. Cuando se completa la ejecución en el nuevo modo, el procesador puede restaurar el estado previo desde la pila y continuar la ejecución en el modo anterior.
+
+
+### Ejemplo:
+
+Supongamos que estamos en el modo de privilegio no privilegiado (thread/User Mode) y se produce una interrupción. La secuencia típica sería la siguiente:
+
+- 1. El procesador está en modo no privilegiado (Thread/User Mode) ejecutando código de aplicación normal.
+- 2. Se produce una interrupción, como una interrupción de temporizador.
+- 3. El procesador reconoce la interrupción y automáticamente guarda el contexto actual (registros importantes) en la pila de la tarea actual.
+- 4. El procesador cambia al Modo de Privilegio Privilegiado (Handler/Privileged Mode) y comienza a ejecutar la rutina de manejo de interrupciones desde una dirección específica de memoria.
+- 5. La rutina de manejo de interrupciones se ejecuta en modo privilegiado, realiza las operaciones necesarias y, cuando se completa, se restaura el contexto guardado en la pila de la tarea actual.
+- 6. Después de completar la rutina de manejo de interrupciones, el procesador vuelve al Modo de Privilegio No Privilegiado (Thread/User Mode) y reanuda la ejecución del código de la aplicación normal donde se interrumpió.
+
+
+Sería la forma en la cual se produce una conmutación de modo de privilegio a través de una interrupción y cómo el procesador vuelve al modo no privilegiado una vez que se completa la rutina de manejo de interrupciones. La capacidad de cambiar de manera controlada entre estos modos es fundamental para la gestión de eventos y la ejecución de tareas en sistemas embebidos de tiempo real. 
+
+## Pregunta N° 7
+¿Qué se entiende por modelo de registros ortogonal? Dé un ejemplo
+
+## Respuesta N° 7
+
+Se refiere a un diseño de arquitectura en el cual los registros son utilizados de manera uniforme y consistente, esto significa que los registros pueden ser usados indistintamente para una variedad de propósitos. Es decir, en un modelo de registros ortogonal, no hay restricciones que limiten el uso de un registro específico para ciertas operaciones o tipos de datos. Esto brinda flexibilidad y eficiencia en el uso de registros y forma de programación. 
+
+El uso de registros generales para operaciones de datos y cálculos, independientemente de si son instrucciones de carga/almacenamiento, aritméticas o lógicas. En un procesador con un modelo de registros ortogonal, los registros se utilizan de manera coherente en diversas situaciones. Por ejemplo: 
+
+
+Supongamos que tenemos los siguientes registros de propósito general $t0, $t1 y $t2. Estos registros se pueden utilizar de manera intercambiable para realizar diversas operaciones. 
+
+```c
+add $t0, $t1, $t2    # Sumar el contenido de $t1 y $t2 y almacenar el resultado en $t0
+sub $t2, $t2, $t1    # Restar el contenido de $t1 de $t2 y almacenar el resultado en $t2
+```
+
