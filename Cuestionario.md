@@ -170,12 +170,12 @@ El cambio entre modos de privilegio se realiza mediante instrucciones especiales
 
 Supongamos que estamos en el modo de privilegio no privilegiado (thread/User Mode) y se produce una interrupción. La secuencia típica sería la siguiente:
 
-- 1. El procesador está en modo no privilegiado (Thread/User Mode) ejecutando código de aplicación normal.
-- 2. Se produce una interrupción, como una interrupción de temporizador.
-- 3. El procesador reconoce la interrupción y automáticamente guarda el contexto actual (registros importantes) en la pila de la tarea actual.
-- 4. El procesador cambia al Modo de Privilegio Privilegiado (Handler/Privileged Mode) y comienza a ejecutar la rutina de manejo de interrupciones desde una dirección específica de memoria.
-- 5. La rutina de manejo de interrupciones se ejecuta en modo privilegiado, realiza las operaciones necesarias y, cuando se completa, se restaura el contexto guardado en la pila de la tarea actual.
-- 6. Después de completar la rutina de manejo de interrupciones, el procesador vuelve al Modo de Privilegio No Privilegiado (Thread/User Mode) y reanuda la ejecución del código de la aplicación normal donde se interrumpió.
+1. El procesador está en modo no privilegiado (Thread/User Mode) ejecutando código de aplicación normal.
+2. Se produce una interrupción, como una interrupción de temporizador.
+3. El procesador reconoce la interrupción y automáticamente guarda el contexto actual (registros importantes) en la pila de la tarea actual.
+4. El procesador cambia al Modo de Privilegio Privilegiado (Handler/Privileged Mode) y comienza a ejecutar la rutina de manejo de interrupciones desde una dirección específica de memoria.
+5. La rutina de manejo de interrupciones se ejecuta en modo privilegiado, realiza las operaciones necesarias y, cuando se completa, se restaura el contexto guardado en la pila de la tarea actual.
+6. Después de completar la rutina de manejo de interrupciones, el procesador vuelve al Modo de Privilegio No Privilegiado (Thread/User Mode) y reanuda la ejecución del código de la aplicación normal donde se interrumpió.
 
 
 Sería la forma en la cual se produce una conmutación de modo de privilegio a través de una interrupción y cómo el procesador vuelve al modo no privilegiado una vez que se completa la rutina de manejo de interrupciones. La capacidad de cambiar de manera controlada entre estos modos es fundamental para la gestión de eventos y la ejecución de tareas en sistemas embebidos de tiempo real. 
@@ -196,4 +196,81 @@ Supongamos que tenemos los siguientes registros de propósito general $t0, $t1 y
 add $t0, $t1, $t2    # Sumar el contenido de $t1 y $t2 y almacenar el resultado en $t0
 sub $t2, $t2, $t1    # Restar el contenido de $t1 de $t2 y almacenar el resultado en $t2
 ```
+En este ejemplo, los registros $t0, $t1 y $t2 se utilizan de manera intercambiable para realizar operaciones de suma y resta. No hay restricciones especiales sobre cuál registro se debe usar para qué tipo de operación. Esto brinda al programador una mayor flexibilidad para organizar y optimizar el código según sus necesidades.
+
+
+## Pregunta N° 8
+¿Qué ventajas presenta el uso de intrucciones de ejecución condicional (IT)? Dé un ejemplo
+
+## Respuesta N° 8
+
+Estas instrucciones permiten ejecutar condicionalmente un bloque de instrucciones en función de una condición específica, lo que puede llevar a varias ventajas: 
+
+1. Ahorro de espacio de código.
+2. Mejora en la ejecución del código.
+3. Reducción de errores. 
+
+Un ejemplo: 
+
+```c
+
+CMP R0, #0          ; Comparar el valor en R0 con cero
+ITE EQ              ; Si es igual (Equal), entonces
+    ADD R1, R1, #1  ;     Sumar 1 a R1
+    SUB R2, R2, #1  ;     Restar 1 de R2
+
+```
+
+Se compara el valor en el registro R0 con cero. Si son iguales (`equal` se cumple), entonces se ejecutarán las dos instrucciones siguientes, que suman 1 al registro R1 y restan 1 al registro R2. Si la condición no se cumple, se omiten las instrucciones. 
+
+## Pregunta N° 9
+Describa brevemente las excepciones más prioritarias (reset, NMI, Hardfault).
+
+## Respuesta N° 9
+
+- *`Reset:`*
+    - Esta es la excepción de mayor prioridad.
+    - Se produce cuando el microcontrolador se enciende o se reinicia.
+    - Al activarse esta excepción, el microcontrolador carga la dirección de inicio predeterminada (vector de reset) y comienza la ejecución desde ese punto.
+
+- *`NMI (Non-Maskable Interrupt):`*
+    - Tiene una prioridad alta, pero es menor que la del reset.
+    - Es una excepción que no se puede deshabilitar ni enmascarar mediante la configuración de las interrupciones.
+    - Se utiliza para situaciones críticas y eventos que requieren una respuesta inmediata, como problemas de seguridad o fallas en el sistema.
+
+- *`Hard Fault`*:
+
+    - Esta es otra excepción de alta prioridad.
+    - Se produce cuando ocurre una situación excepcional o un error grave en el código, como una violación de acceso a memoria o una instrucción no válida.
+    - En muchos casos, el Hard Fault indica problemas en el software o en la configuración del sistema.
+    - Puede ser útil para depurar problemas difíciles en el código o el hardware del microcontrolador.
+
+Se consideran prioritarias porque pueden interrumpir el funcionamiento normal del microcontrolador y suelen estar relacionadas con situaciones críticas o condiciones anómalas. 
+
+## Pregunta N° 10
+Describa las funciones principales de la pila. ¿Cómo resuelve la arquitectura el llamado a funciones y su retorno?
+
+## Respuesta N° 10
+
+
+La pila es una estructura de datos fundamental en la programación y en la arquitectura de microcontroladores. Cumple funciones escenciales, especialmente cuando se trata del llamado a funciones y su retorno. Sus funciones principales son:
+
+1. *`Almacenamiento temporal: `* Se utiliza la pila para almacenar de manera temporal datos y registros importantes durante la ejecución del programa. Incluyendo la preservación de registros antes de realizar llamadas a funciones para que se puedan restaurar despues de que la funcion retorne. 
+
+2. *`Gestión de llamdas a funciones: `* Cuando se llama a una funcion, la dirección de retorno y otros valores necesarios como parámetros y registros importantes, se almacenan en la pila. Esto permite a la funcion su ejecución y que luego pueda regresar al punto de llamada cuando termine.
+
+3. *`Anidamiento de llamadas: `* Cuando una función llama a otra función, la dirección de retorno y los registros de la función actual se almacenan en la pila, eso permite que se realice otra llamada antes de que la función actual haya terminado. 
+
+4. *`Almacenamiento de variables locales: `* Podemos guardar las variables locales de una función en la pila, eso asegura que las variables locales estén disponibles solo dentro del contexto de la función y se liberen automáticamente cuando la función regresa. 
+
+Resolución del llamado a funciones y su retorno:
+
+ARM Cortex-M, utiliza la pila para resolver el llamado a funciones y su retorno de la siguiente manera: 
+
+
+- *`Llamado a funciones (Call):`* Cuando se llama a una función, se almacena la dirección de retorno actual en la pila junto con cualquier parámetro necesario. Luego, se cambia la ejecución al inicio de la función llamada. La pila se utiliza para mantener un historial de llamadas, de modo que se pueden anidar múltiples llamadas a funciones.
+
+- *`Retorno de funciones (Return):`* Cuando una función completa su ejecución, utiliza la dirección de retorno almacenada en la pila para regresar al punto de llamada original. La dirección de retorno se carga desde la pila y la pila se "desenrolla" para eliminar los datos relacionados con la función que está terminando. Esto permite que el programa continúe desde donde se dejó antes de la llamada a la función.
+
+La gestión adecuada de la pila es crucial para evitar errores de desbordamiento o subdesbordamiento de pila, que pueden llevar a un comportamiento impredecible o incluso al bloqueo del programa.
 
