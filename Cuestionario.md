@@ -274,3 +274,42 @@ ARM Cortex-M, utiliza la pila para resolver el llamado a funciones y su retorno 
 
 La gestión adecuada de la pila es crucial para evitar errores de desbordamiento o subdesbordamiento de pila, que pueden llevar a un comportamiento impredecible o incluso al bloqueo del programa.
 
+
+## Pregunta N° 11
+Describa la secuencia de reset del microprocesador.
+
+## Respuesta N° 11
+
+La secuencia de reset es un proceso crítico que ocurre cuando el micro se inicia o se reinicia para llevarlo a un estado conocido y prepararlo para la ejecución de su código. La secuencia es la siguiente:
+
+1. *`Alimentación o reinicio:`* La secuencia de reset comienza cuando se aplica energía al microprocesador o cuando se activa un reinicio. Esto puede ser resultado de encender un dispositivo, presionar un botón de reinicio, o debido a una condición específica del sistema que requiere un reinicio.
+
+2. *`Inicialización del hardware:`* Cuando se aplica energía o se activa un reinicio, el hardware interno del microprocesador comienza a inicializarse. Esto puede incluir la configuración de registros y periféricos internos, la activación de relojes y la preparación de los buses de datos y dirección.
+
+3. *`Estado de reset:`* En este punto, el microprocesador se encuentra en un estado de reset. En este estado, generalmente, la mayoría de los registros y periféricos internos están en un estado conocido y predeterminado, y la CPU se encuentra en una dirección de inicio predeterminada o vector de reset.
+
+4. *`Vector de reset:`* El vector de reset es una dirección de memoria específica donde se espera que comience la ejecución del programa después de un reset. Esta dirección es conocida y configurada previamente y generalmente apunta a una ubicación en la memoria flash o ROM donde se encuentra el código de inicio del sistema.
+
+5. *`Ejecución del código de inicio:`* Una vez que el microprocesador ha completado la inicialización del hardware y se encuentra en el vector de reset, comienza la ejecución del código de inicio. Este código es responsable de configurar aún más el sistema, inicializar registros, configurar la pila y realizar otras tareas necesarias para preparar el microprocesador para la ejecución del programa principal.
+
+6. *`Inicialización de la pila:`* La pila se inicializa generalmente en este punto, configurando el puntero de pila (stack pointer) para que apunte a una ubicación válida en memoria. Esto permite que el programa utilice la pila para gestionar las llamadas a funciones y las interrupciones de manera adecuada.
+
+7. *`Inicio del programa principal:`* Una vez que se ha completado la inicialización del sistema y se ha configurado la pila, se inicia la ejecución del programa principal. El programa principal es la aplicación o el software específico que realiza las tareas deseadas en el microprocesador.
+
+## Pregunta N° 12
+¿Qué entiende por “core peripherals”? ¿Qué diferencia existe entre estos y el resto de
+los periféricos?
+
+## Respuesta N° 12
+
+- *`Core Peripherals`*: Se refiere al conjunto de periféricos integrados directamente en el núcleo del microcontrolador o microprocesador. Estos son esenciales para su funcionamiento y son accesibles y controlables desde el nucleo de procesamiento central sin necesidad de componentes externos adicionales.
+
+caracteristicas: 
+1. Integración en el núcleo.
+2. Control central
+3. Funciones esenciales: temporizadores, interrupciones, GPIOS controllers, registros de estados, etc. 
+4. Independencia de la aplicación.
+
+- *`Peripherals`* : Se utilizan para proporcionar capacidades adicionales para aplicaciones. A diferencia de los anteriores, estos pueden variar considerablemente de un dispositivo a otro en una misma familia, y pueden incluir módulos como UART, SPI, I2C, ADC, PWM, entre otros.
+
+Diferencias: Importancia y ubicación. Los core-peripherals son esenciales para el funcionamiento básico del micro, mientras que los peripherals son módulos opcionales, que varíaran dependiendo de la aplicacion y sus necesidades. 
