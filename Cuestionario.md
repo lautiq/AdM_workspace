@@ -313,3 +313,184 @@ caracteristicas:
 - *`Peripherals`* : Se utilizan para proporcionar capacidades adicionales para aplicaciones. A diferencia de los anteriores, estos pueden variar considerablemente de un dispositivo a otro en una misma familia, y pueden incluir módulos como UART, SPI, I2C, ADC, PWM, entre otros.
 
 Diferencias: Importancia y ubicación. Los core-peripherals son esenciales para el funcionamiento básico del micro, mientras que los peripherals son módulos opcionales, que varíaran dependiendo de la aplicacion y sus necesidades. 
+
+## Pregunta N° 13
+¿Cómo se implementan las prioridades de las interrupciones? Dé un ejemplo
+
+## Respuesta N° 13
+
+En los microcontroladores basados en la arquitectura ARM cortex-M existe una parte fundamental que es el NVIC (Nested Vectored Interrupt Controller) o controlador de interrupciones, a través de este se realiza la implementacion de las prioridades de una interrupción.
+
+Implementación de prioridades de interrupción: 
+
+1. *`Asignacion de prioridades: `* Cada interrupción se asocia con un número de prioridad. Las interrupciones de menor valor son mas prioritarias. Por ejemplo, una interrupcion de un temporizador crítica podría tener prioridad cero mientras que una interrupcion de un pulsador podría tener una mas alta como 3. 
+
+2. *`Máscara de prioridades: `* El NVIC permite configurar una mascara de prioridades que determina que interrupciones pueden interrumplir a otras. Es decir, incluso si dos interrupciones tienen distintas prioridades, una de mayor prioridad podría no activarse si esta enmascarada dentro de una menor prioridad. 
+
+3. *`Vector de interrupcion: `* Para cada interrupción, hay una dirección específica de memoria, la cual contiene la dirección de inicio de la rutina de manejo de dicha interrupción. Las direcciones y números de prioridad se almacenan en una tabla llamada "Vector de interrupción", que el controlador de interrupciones usa para enrutar la ejecución ante una interrupción. 
+
+
+Ejemplo de implementación.
+
+Supongamos que tenemos un cortex-M y se configuran dos interrupciones. Un temporizador (baja prioridad) y un pulsador (alta prioridad).
+
+Asignación de prioridades: 
+    - Temporizador: Prioridad 3 (baja prioridad)
+    - Pulsador: Prioridad 1 (alta prioridad)
+
+Máscara de prioridades: 
+    - Podemos configurar una máscara que permita que la interrupción del pulsador (prioridad 1) interrumpa al temporizador (prioridad 3), pero no al revés. 
+
+Vector de interrupción:
+    - La dirección de inicio de la rutina de manejo del temporizador se almacena en el vector de interrupción asociado a la interrupción del temporizador.
+    - La dirección de inicio de la rutina de manejo del pulsador se almacena en el vector de interrupción asociado a la interrupción del pulsador.
+
+Cuando ocurra una interrupción, el NVIC consulta la máscara de prioridades y los vectores de interrupción para ver si tiene que atenderla o no. En este ejemplo, si se pulsa el botón, se interrumpirá la ejecución actual y ejecutará la rutina de manejo del pulsador. Sin embargo, si ocurre una interrupción del temporizador al mismo tiempo, esta no se atenderá ya que tendrá que esperar que termine el manejo del pulsador por las prioridades y máscaras.
+
+## Pregunta N° 14
+¿Qué es el CMSIS? ¿Qué función cumple? ¿Quién lo provee? ¿Qué ventajas aporta?
+
+## Respuesta N° 14
+
+`CMSIS` --> Cortex Microcontroller Software Interface Standar. 
+
+Es un estandar desarrollado por ARM para brindar una interfaz común y coherente para desarrolladores de software que trabajan con microcontroladores basados en ARM Cortex-M. 
+
+Propósito: 
+Facilitar el desarrollo de software embebido para microcontroladores Cortex-M proporcionando una capa de abstracción que estandariza aspectos escenciales del hardware y de su entorno de desarrollo. 
+
+Funciones:
+
+1. *`Abstracción de hadware: `*  Permite acceder de manera consistente a los recursos del micro, como registros, périfericos y funciones específicas de la CPU, independientemente del fabricante o modelo. 
+
+2. *`Gestion de las interrupciones: `* CMSIS define un conjunto de funciones y macros para configurar y manejar las interrupciones.
+
+3. *`Control de energía: `* Proporciona funciones para administrar y controlar modos de bajo consumo del microcontrolador.
+
+4. *`Funciones matemáticas:  `* Ofrece funciones matemáticas, como funciones trigonométricas y operaciones de punto flotante.
+
+5. *`Depuración :`* Incluye características para el depurador, como definiciones de registros y macros para manipular registros especiales en tiempo de ejecución.
+
+Proveedor: 
+Es desarrollado y mantenido por ARM holdings. ARM proporciona especificaciones, documentación y bibliotecas CMSIS de manera gratuita para los fabricantes de microcontroladores y la comunidad de desarrolladores. 
+
+Ventajas: 
+
+1. *`Portabilidad:`* Permite escribir código portátil que puede ejecutarse en una variedad de microcontroladores Cortex-M de diferentes fabricantes sin modificar significativamente el código fuente.
+
+2. *`Eficiencia:`* Proporciona funciones optimizadas y macros que permiten un mejor rendimiento y un uso eficiente de los recursos del microcontrolador.
+
+3. *`Facilidad de Desarrollo:*` Simplifica el desarrollo de software al proporcionar una interfaz coherente y abstracción de hardware, lo que acelera el proceso de desarrollo.
+
+4. *`Compatibilidad de Herramientas:`* CMSIS se integra con numerosas herramientas de desarrollo, como compiladores, depuradores y entornos de desarrollo integrados (IDE), lo que facilita la configuración y la depuración.
+
+## Pregunta N° 15
+Cuando ocurre una interrupción, asumiendo que está habilitada ¿Cómo opera el microprocesador para atender a la subrutina correspondiente? Explique con un ejemplo
+
+## Respuesta N° 15
+
+Primero el hardware del microprocesador es quien detecta que se produjo una interrupción. Esto puede ser el resultado de una señal de hardware, como un temporizador que alcanza un valor específico o la pulsación de un botón. Luego, antes de pasar a la rutina de manejo de la interrupción, el micro suele guardar el estado actual del CPU, como el contenido de los registros y la dirección de retorno. Esto se hace para que, despues de manejar la interrupción, la CPU pueda restaurar su estado y continuar la ejecución normal del programa.
+A menudo, el microprocesador desactiva temporalmente las interrupciones para evitar que ocurran interrupciones adicionales mientras se maneja la actual, esto evita que la rutina de manejo sea interrumpida. Ahora el microprocesador busca en la tabla de vectores de interrupciones la dirección de inicio de la rutina de manejo de la interrupción correspondiente. Cada interrupción tiene su propia entrada en la tabla de vectores con la dirección de inicio adecuada. 
+La CPU salta a la dirección de inicio de la rutina de manejo de la interrupción y comienza a ejecutar el código específico para dicha interrupción. Luego de completar la rutina de manejo de la interrupción, el microprocesador restaura el estado que se guardo previamente, incluido los registros y dirección de retorno. Ahora se reactivan las interrupciones permitiendo que se procesen interrupciones adicionales.
+
+EJEMPLO:
+
+Supongamos que tenemos un temporizador que se activa cada un segundo, cuando esto ocurra el micro hará lo siguiente:
+1. Detecta que el temporizador alcanzo el valor programado, genera la interrupción.
+2. Guarda el estado de la CPU actual.
+3. Desactiva las interrupciones adicionales.
+4. Busca en la tabla de vectores de interrupción la dirección de inicio de la rutina de manejo del temporizador.
+5. salta a la dirección de incio de la rutina y comienza a ejecutar el código de manejo del temporizador, que podría ser, por ejemplo, actualizar una variable global que cuenta los segundos transcurridos. 
+6. Finalizada la rutina de manejo, restaura el estado guardado en el punto 2.
+7. Reactiva las interrupciones.
+
+
+## Pregunta N° 16
+Explique las características avanzadas de atención a interrupciones: tail chaining y late arrival.
+
+## Respuesta N° 16
+
+Las características avanzadas de atención a interrupciones conocidas como `Tail Chaining` (encadenamiento de cola) y `Late Arrival` (llegada tardía) son técnicas que mejoran la eficiencia y el rendimiento del manejo de interrupciones. 
+
+Características:
+
+- *`Tail Chaining (Encadenamiento de Cola): `*
+
+    - Qué es? Es una técnica que permite al microcontrolador continuar de manera eficiente con el manejo de múltiples interrupciones pendientes de la misma prioridad sin la necesidad de volver a habilitar las interrupciones entre cada una de ellas.
+
+    - Cómo? Cuando ocurre una interrupción y se está manejando, si hay otras interrupciones de la misma prioridad pendientes en la cola, el microcontrolador puede automáticamente pasar a manejar la siguiente interrupción en la cola después de completar la primera, sin necesidad de reactivar las interrupciones. Esto reduce la latencia y el tiempo de procesamiento total.
+
+    - Ventajas: En situaciones donde hay múltiples interrupciones de alta prioridad que deben manejarse en rápida sucesión permite un flujo de manejo de interrupciones más suave y eficiente.
+
+- *`Late Arrival (Llegada Tardía): `*
+
+    - Qué es? Permite que una interrupción que ocurre durante el manejo de otra interrupción de la misma prioridad pueda ser atendida después de completar la interrupción actual.
+
+    - Cómo? Si una interrupción de igual o mayor prioridad se produce mientras se maneja una interrupción actual, el microcontrolador completa la interrupción actual antes de atender la nueva interrupción. Sin embargo, con el Late Arrival habilitado, si la nueva interrupción tiene la misma prioridad, se encola y se atiende después de completar la actual.
+
+    - Ventajas: El Late Arrival puede ser útil en situaciones en las que se desea garantizar que todas las interrupciones de igual prioridad se atiendan en orden de llegada, incluso si ocurren durante el manejo de otras interrupciones. Esto puede ayudar a mantener una gestión de interrupciones más justa y predecible.
+
+Estas características mejoran la eficiencia y la capacidad de respuesta de los sistemas embebidos en entornos donde las interrupciones son críticas y ocurren frecuentemente.
+
+
+## Pregunta N° 17
+¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?
+
+## Respuesta N° 17
+
+ La operación de stacking cambia al utilizar la unidad de punto flotante en un microcontrolador Cortex-M debido a la necesidad de manejar los registros de punto flotante adicionales y garantizar su integridad durante las llamadas a funciones y las rutinas de manejo de interrupciones. El uso adecuado de instrucciones de carga/guarda de punto flotante, el cumplimiento de reglas de llamadas a funciones y la consideración de la alineación de la pila son aspectos clave para gestionar de manera efectiva los registros de punto flotante en estos sistemas.
+
+
+Descripción de los cambios en la operación de stacking cuando se utiliza la FPU:
+
+1. *`Registro de Status (PSR):`* El registro de estado (PSR) almacena información sobre las banderas de condición, el modo de procesamiento, la habilitación de interrupciones, entre otros. Cuando se utiliza la FPU, el PSR se divide en dos partes: el PSR principal (IPSRR) y el PSR de punto flotante (FPSR). El apilamiento debe tener en cuenta esta separación para asegurar la consistencia durante las operaciones de cambio de contexto.
+
+2. *`Registros de Punto Flotante (S registros):`*  La FPU agrega un conjunto de registros de punto flotante llamados registros "S" ("Single Precision"). Se utilizan para almacenar valores de punto flotante de precisión simple (por ejemplo, números de punto flotante de 32 bits). Durante el stacking, es necesario apilar y desapilar estos registros junto con los registros de enteros.
+
+3. *`Instrucciones de Carga/Guarda de Punto Flotante:`* El conjunto de instrucciones del procesador incluye instrucciones específicas para cargar y guardar valores desde/hacia los registros de punto flotante hacia y desde la memoria. Estas instrucciones deben ser utilizadas adecuadamente para garantizar que los valores de punto flotante se manejen correctamente durante el stacking.
+
+4. *`Alineación de Pila:`* Para asegurar un acceso eficiente y sin errores a los registros de punto flotante, es importante que la pila esté alineada adecuadamente para que los datos de punto flotante se almacenen y restauren correctamente.
+
+5. *`Reglas de Llamadas a Funciones e Interrupciones:`* Durante una llamada a función o una rutina de manejo de interrupción, se deben seguir reglas específicas para almacenar y restaurar los registros de punto flotante según el estándar establecido por el ABI (Application Binary Interface) utilizado en el sistema. Esto garantiza la coherencia en la gestión de los registros de punto flotante en todo el código.
+
+## Pregunta N° 18
+¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?
+
+## Respuesta N° 18
+
+`Systick: ` Es un temporizador o contador de sistema. Su implementación favorece la portabilidad de los sistemas operativos embebidos por varias razones:
+
+
+
+1. *`Estándar en la Arquitectura Cortex-M:`* Es una característica estándar de la arquitectura, lo que significa que se encuentra en todos los microcontroladores que utilizan esta arquitectura. Esto proporciona una interfaz consistente y predecible para el control del tiempo y la temporización en sistemas embebidos basados en Cortex-M, independientemente del fabricante del microcontrolador específico.
+
+2. *`Interrupción de Sistema Estándar:`* El SysTick está diseñado para generar una interrupción de sistema periódica a una frecuencia configurable. Esta interrupción se utiliza comúnmente por los sistemas operativos embebidos como un "tick" o un golpe del reloj del sistema. Los sistemas operativos pueden configurar el período del SysTick para que coincida con la base de tiempo requerida para tareas como planificación de tareas, gestión de tiempos de espera y control de eventos.
+
+3. *`Independencia del Fabricante:`* Dado que el SysTick es una característica de la arquitectura Cortex-M y no depende del fabricante del microcontrolador, los desarrolladores de sistemas embebidos pueden escribir código que funcione en una variedad de microcontroladores Cortex-M sin tener que modificarlo significativamente. Esto facilita la portabilidad del software entre diferentes plataformas.
+
+4. *`Configuración Flexible:`* El SysTick generalmente permite la configuración flexible de su frecuencia de conteo, lo que permite adaptarlo a las necesidades específicas de temporización de una aplicación. Esto es esencial para que los sistemas operativos embebidos funcionen de manera eficiente y se ajusten a los requisitos de las aplicaciones.
+
+5. *`Bajo Consumo de Energía:`* A pesar de su funcionalidad, el SysTick suele ser eficiente en cuanto al consumo de energía. Esto es importante en sistemas embebidos donde la gestión de la energía es crítica.
+
+## Pregunta N° 19
+¿Qué funciones cumple la unidad de protección de memoria (MPU)?
+
+## Respuesta N° 19
+
+Es una característica que se encuentra en algunos de los microcontroladores de arquitectura Cortex-M y cumple varias funciones relacionadas con la protección de la memoria en sistemas embebidos. A continuación, se describen las principales funciones de la MPU:
+
+1. Protección de Memoria: Controla y restringe el acceso a áreas de memoria específicas.
+
+2. Segmentación de Memoria: Divide la memoria en regiones para aislar datos y código críticos.
+
+3. Protección de Pila: Previene escritura no autorizada en la pila del sistema.
+
+4. Gestión de Permisos: Define quién puede acceder y qué tipo de acceso está permitido.
+
+5. Prevención de Ejecución de Datos: Evita la ejecución de código en áreas de memoria no ejecutables.
+
+6. Protección de Periféricos: Protege registros y configuraciones de controladores de periféricos.
+
+7. Aislamiento de Tareas: Aísla regiones de memoria entre tareas o procesos en sistemas multitarea.
+
+Basicamente, la MPU proporciona una capa adicional de seguridad y control en sistemas embebidos al permitir proteccion de memoria, control de acceso y prevención de ejecución de codigo no autorizado o malicioso. 
