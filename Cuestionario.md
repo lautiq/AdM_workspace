@@ -1,14 +1,5 @@
 # Arquitectura de Microprocesadores
 
-## Indice
-
-- [Pregunta N° 0](#Pregunta-N°-0)
-- [Pregunta N° 1](#Pregunta-N°-1)
-- [Pregunta N° 2](#Pregunta-N°-2)
-- [Pregunta N° 3](#Pregunta-N°-3)
-- [Pregunta N° 4](#Pregunta-N°-4)
-- [Pregunta N° 5](#Pregunta-N°-5)
-
 
 
 ## Pregunta N° 0
