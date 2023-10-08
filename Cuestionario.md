@@ -494,3 +494,223 @@ Es una característica que se encuentra en algunos de los microcontroladores de 
 7. Aislamiento de Tareas: Aísla regiones de memoria entre tareas o procesos en sistemas multitarea.
 
 Basicamente, la MPU proporciona una capa adicional de seguridad y control en sistemas embebidos al permitir proteccion de memoria, control de acceso y prevención de ejecución de codigo no autorizado o malicioso. 
+
+## Pregunta N° 20
+¿Cuántas regiones pueden configurarse como máximo? ¿Qué ocurre en caso de haber solapamientos de las regiones? ¿Qué ocurre con las zonas de memoria no cubiertas por las regiones definidas?
+
+## Respuesta N° 20
+
+El número maximo de regiones que se pueden configurar en la MPU de un Cortex-M depende de la implementacion especifica del hardware en el microcontrolador. No existe un numero fijo, lo define el fabricante. 
+
+Cuando se configuran regiones en la Unidad de Protección de Memoria (MPU) y hay solapamientos entre ellas, es importante comprender cómo se comporta la MPU y cómo se resuelven estos solapamientos. Aquí se describen las consideraciones clave:
+
+1. Prioridad de Región: La MPU suele dar prioridad a las regiones con permisos más restrictivos en caso de solapamiento. En otras palabras, si dos regiones se solapan y una de ellas tiene permisos más restrictivos que la otra, los permisos más restrictivos prevalecerán.
+
+2. Permisos de Acceso: Los permisos de acceso son importantes en la resolución de solapamientos. Si dos regiones se solapan pero tienen permisos de acceso diferentes (por ejemplo, lectura y escritura en una región y solo lectura en la otra), la MPU aplicará los permisos específicos de cada región a las direcciones correspondientes.
+
+3. Región Más Específica: En algunos casos, si una dirección de memoria está dentro de dos regiones que se solapan, se aplicarán los permisos de la región más específica o la región con una dirección de inicio más baja.
+
+4. Verificación por el Hardware: La resolución de solapamientos generalmente es manejada por hardware en la MPU. El hardware de la MPU verifica las direcciones de memoria en tiempo real y aplica los permisos adecuados según las reglas configuradas.
+
+5. Configuración Cuidadosa: Para evitar problemas de solapamiento, es importante configurar las regiones de manera cuidadosa y coherente. Los desarrolladores deben considerar las necesidades específicas de la aplicación y definir las regiones de manera que no se generen conflictos no deseados.
+
+6. Validación y Pruebas: Después de configurar las regiones, es aconsejable realizar pruebas exhaustivas para garantizar que los permisos y los solapamientos se comporten como se espera en la aplicación.
+
+Las zonas de memoria no cubiertas por las regiones definidas en la MPU se consideran no protegidas y están disponibles para su acceso sin restricciones. La gestión adecuada de estas zonas, junto con la configuración de regiones de protección para las áreas críticas, es esencial para garantizar la seguridad y la integridad del sistema en sistemas embebidos.
+
+## Pregunta N° 21
+¿Para qué se suele utilizar la excepción PendSV? ¿Cómo se relaciona su uso con el resto de las excepciones? Dé un ejemplo
+
+## Respuesta N° 21
+
+La excepción PendSV (Pendable Supervisor Call) se utiliza comúnmente en sistemas embebidos basados en la arquitectura ARM Cortex-M para realizar tareas de planificación y cambio de contexto en sistemas multitarea o sistemas operativos en tiempo real. Su principal función es permitir una transición controlada de una tarea a otra con prioridades iguales o similares. A continuación, se describen las características y el uso de la excepción PendSV y su relación con otras excepciones:
+
+Características y Uso de la Excepción PendSV:
+
+1. *`Prioridad Fija:`* La excepción PendSV tiene la prioridad más baja de todas las excepciones en un sistema Cortex-M. Esto garantiza que sea interrumpible por cualquier otra excepción de mayor prioridad, lo que la convierte en una herramienta adecuada para realizar cambios de contexto y tareas de planificación sin ser interrumpida por interrupciones de alta prioridad.
+
+2. *`Cambios de Contexto:`* La excepción PendSV se utiliza para realizar cambios de contexto entre tareas en sistemas multitarea. Cuando se activa, el código de la excepción PendSV guarda el estado de la tarea actual y restaura el estado de la siguiente tarea que debe ejecutarse.
+
+3. *`Desencadenamiento Manual:`* A diferencia de otras excepciones que se generan en respuesta a eventos específicos, como interrupciones de temporizador o E/S, PendSV se desencadena manualmente. Esto permite un control preciso sobre cuándo se realizarán los cambios de contexto.
+
+4. *`Relación con Otras Excepciones:`* La excepción PendSV se utiliza en conjunto con otras excepciones relacionadas con la planificación de tareas, como SysTick y SysTick_Handler. SysTick es un temporizador que genera interrupciones periódicas y se utiliza para realizar tareas de planificación regulares. Cuando ocurre una interrupción de SysTick, el control puede pasar a la rutina de manejo de interrupciones SysTick_Handler, que puede decidir si es necesario activar la excepción PendSV para cambiar de contexto.
+
+ Ejemplo de Uso:
+
+Supongamos un sistema multitarea simple con dos tareas, TareaA y TareaB, que se ejecutan en un microcontrolador Cortex-M. La tarea PendSV se utiliza para cambiar el contexto entre estas dos tareas. El flujo de trabajo puede ser el siguiente:
+
+- Inicialmente, se ejecuta TareaA y realiza sus tareas específicas.
+- Cuando TareaA decide que es el momento de ceder el control a TareaB (por ejemplo, al final de su período de tiempo o en respuesta a un evento específico), TareaA activa manualmente la excepción PendSV.
+- La excepción PendSV se ejecuta, guarda el estado de TareaA y restaura el estado de TareaB.
+- Ahora, TareaB toma el control y se ejecuta.
+- Cuando TareaB decide ceder el control a TareaA o a otra tarea, activa nuevamente la excepción PendSV, y el proceso se repite.
+
+En este ejemplo, PendSV se utiliza para realizar cambios de contexto entre tareas de manera controlada, lo que permite la ejecución multitarea en sistemas embebidos. El uso de PendSV se relaciona estrechamente con la planificación de tareas y puede trabajar en conjunto con otras excepciones y temporizadores para lograr una gestión eficiente de las tareas en el sistema.
+
+
+
+# ISA
+
+## Pregunta N°1
+¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo
+
+## Respuesta N°1
+
+Los sufijos son caracteres que se agregan a las instrucciones para indicar el tipo de dato con el que opera dicha instrucción. Permiten especificar si una instrucción se aplica a datos enteros o de punto flotante o si de es de load o storage, etc. Ayudan entonces a definir el comportamiento exacto de uns intrucción en términos de los tipos de datos involucrados. 
+
+
+- Sufijos de Tipo de Datos:
+
+
+`.B:` Indica que la instrucción se aplica a datos de 8 bits (bytes).
+`.H:` Indica que la instrucción se aplica a datos de 16 bits (halfwords).
+`.S:` Indica que la instrucción se aplica a datos de precisión simple en punto flotante (32 bits).
+`.D:` Indica que la instrucción se aplica a datos de doble precisión en punto flotante (64 bits).
+Sufijos de Operación:
+
+`.W:` Indica que la instrucción realiza una escritura a memoria.
+`.R:` Indica que la instrucción realiza una lectura desde memoria.
+Sufijos de Modificación de Registro:
+
+`.X:` Indica que la instrucción afecta al registro de banderas (por ejemplo, N, Z, C, V en el caso de la arquitectura ARM).
+Sufijos de Condición:
+
+`.EQ`, `.NE`, `.GT`, `.LT`, etc.: Estos sufijos se utilizan para condicionar una instrucción según una condición específica. Por ejemplo, .EQ indica "igual", .NE indica "no igual", .GT indica "mayor que", .LT indica "menor que", etc.
+
+    Ejemplo de Uso:
+
+Supongamos que estamos programando en ensamblador ARM y queremos cargar un valor de 32 bits desde memoria a un registro. Podemos utilizar el sufijo .W para indicar que estamos realizando una lectura desde memoria en formato de palabra (32 bits):
+
+```c
+
+LDR.W R0, [R1]  ; Carga el valor de 32 bits desde la dirección en R1 a R0
+
+``` 
+.W se utiliza para especificar que se trata de una operación de lectura desde memoria de 32 bits. La instrucción LDR.W carga el valor de 32 bits desde la dirección en el registro R1 a R0.
+
+## Pregunta N°2
+¿Para qué se utiliza el sufijo ‘s’? Dé un ejemplo
+
+## Respuesta N°2
+
+se agrega a las instrucciones de tipo "aritmético lógico" y "comparación" para indicar que se deben actualizar las banderas condicionales (por ejemplo, las banderas N, Z, C, y V) basadas en el resultado de la operación. Si no se utiliza el sufijo 's', las banderas no se actualizan después de la ejecución de la instrucción.
+
+Ejemplo:
+
+```c
+
+CMP R0, R1  ; Compara el valor en R0 con el valor en R1
+
+```
+En este caso, la instrucción CMP compara los valores en los registros R0 y R1. Sin embargo, esta instrucción no actualiza las banderas de condición. Para actualizar las banderas de condición, se agrega el sufijo 's' a la instrucción
+
+```c
+
+CMPS R0, R1  ; Compara el valor en R0 con el valor en R1 y actualiza las banderas
+
+```
+
+el sufijo 's' indica que las banderas de condición (N, Z, C, V) se actualizarán en función del resultado de la comparación. Esto permite al programador tomar decisiones basadas en las condiciones después de la comparación, como realizar saltos condicionales o tomar diferentes caminos en el flujo del programa.
+
+## Pregunta N°3
+¿Qué utilidad tiene la implementación de instrucciones de aritmética saturada? Dé un ejemplo con operaciones con datos de 8 bits.
+
+## Respuesta N°3
+
+La aritmética saturada evita desbordamientos numéricos al ajustar automáticamente los resultados de operaciones dentro de un rango válido. Esto es útil en aplicaciones críticas para evitar resultados incorrectos o inseguros
+
+Por ejemplo, consideremos la suma de dos números de 8 bits que darían como resultado un valor mayor a 255 ( valor maximo para un byte de 8 bits), la aritmetica saturada asegurará que el resultado no supere ese valor:
+
+```c
+
+Número A = 250 (en binario: 11111010)
+Número B = 10  (en binario: 00001010)
+
+
+```
+
+Sin aritmetica saturada: 
+
+```c
+
+Resultado = 250 + 10 = 260 (en binario: 100000100)
+
+```
+
+Con aritmetica saturada: El resultado se ajustaria al valor maximo posible de 8 bits: 
+
+```c
+
+Resultado = 255 (valor máximo de 8 bits, en binario: 11111111)
+
+```
+
+## Pregunta N°4
+Describa brevemente la interfaz entre assembler y C ¿Cómo se reciben los argumentos de las funciones? ¿Cómo se devuelve el resultado? ¿Qué registros deben guardarse en la pila antes de ser modificados?
+
+## Respuesta N°4
+
+La interfaz entre el lenguaje ensamblador (assembler) y C es crucial para permitir que el código escrito en lenguaje ensamblador se comunique y trabaje en conjunto con el código escrito en C en una aplicación. Aquí hay una descripción breve de algunos aspectos clave de esta interfaz:
+
+1. *`Pasaje de Argumentos:*` En la interfaz entre ensamblador y C, los argumentos de las funciones de C se pasan generalmente a través de registros específicos o en la pila, dependiendo de la convención de llamada utilizada en la arquitectura específica. Por ejemplo, en la arquitectura x86, los argumentos se pasan en registros como EAX, EBX, ECX, EDX, y se pueden almacenar en la pila si es necesario.
+
+2. *`Retorno de Resultados:*` El resultado de una función escrita en lenguaje ensamblador que se llama desde C generalmente se devuelve en un registro específico o a través de la pila, nuevamente dependiendo de la convención de llamada. En la arquitectura x86, por ejemplo, el valor de retorno se coloca en el registro EAX.
+
+3. *`Preservación de Registros:*` Antes de modificar ciertos registros, es importante preservar su contenido actual para no interferir con el código de C que llama a la función en lenguaje ensamblador. Los registros que deben guardarse en la pila antes de su modificación varían según la arquitectura y la convención de llamada utilizada. En la arquitectura x86, por ejemplo, se deben guardar los registros EBP, EBX y ESI antes de modificarlos y restaurar su valor original antes de finalizar la función.
+
+4. *`Uso de Pila:*` La pila se utiliza comúnmente para almacenar registros que deben preservarse durante una llamada a función en lenguaje ensamblador. Los registros se empujan (push) a la pila antes de ser modificados y se sacan (pop) de la pila después de restaurar su contenido original.
+
+5. *`Convención de Llamada:*` La elección de la convención de llamada adecuada es esencial para garantizar una comunicación adecuada entre el código en lenguaje ensamblador y el código en C. Las convenciones de llamada definen cómo se pasan los argumentos, se devuelve el resultado y se manejan los registros. Ejemplos de convenciones de llamada comunes incluyen cdecl, stdcall y fastcall en la arquitectura x86.
+
+
+## Pregunta N°3
+
+¿Qué es una instrucción SIMD? ¿En qué se aplican y que ventajas reporta su uso? Dé un ejemplo.
+## Respuesta N°3
+
+Una instrucción SIMD (Single Instruction, Multiple Data) es un tipo de instrucción en una arquitectura de computadora que permite realizar una misma operación en paralelo en múltiples elementos de datos simultáneamente.
+Las ventajas clave de las instrucciones SIMD incluyen la aceleración de cálculos y el aumento del rendimiento de aplicaciones que trabajan con grandes cantidades de datos.
+
+Características de las Instrucciones SIMD:
+
+- Procesamiento en Paralelo: Las instrucciones SIMD permiten realizar la misma operación en varios elementos de datos al mismo tiempo. Esto se logra utilizando registros SIMD que almacenan múltiples valores de datos y ejecutando una sola instrucción que opera en todos esos valores simultáneamente.
+
+- Reducción de Código: Al procesar varios elementos de datos con una sola instrucción, se reduce la cantidad de código necesario para realizar operaciones en series de datos. Esto ahorra tiempo de ejecución y espacio en memoria.
+
+- Mejora del Rendimiento: Las instrucciones SIMD aceleran significativamente el procesamiento de datos, lo que se traduce en un aumento del rendimiento de las aplicaciones que requieren cálculos intensivos. Esto es especialmente beneficioso en tareas como el procesamiento de video, gráficos en 3D y análisis de datos.
+
+Ejemplo:
+
+Supongamos que tenemos una matriz de píxeles y queremos aplicar un filtro de promedio a cada conjunto de píxeles vecinos para suavizar la imagen.
+
+```c
+
+for (int i = 1; i < height - 1; i++) {
+    for (int j = 1; j < width - 1; j++) {
+        // Calcular el valor promedio de los píxeles vecinos y aplicarlo al píxel actual
+        image[i][j] = (image[i-1][j-1] + image[i-1][j] + image[i-1][j+1] +
+                       image[i][j-1]   + image[i][j]   + image[i][j+1] +
+                       image[i+1][j-1] + image[i+1][j] + image[i+1][j+1]) / 9;
+    }
+}
+
+
+```
+
+Con SIMD, podemos realizar esta operación de suavizado en paralelo para mejorar el rendimiento:
+
+```c
+
+// Supongamos que tenemos una función SIMD llamada "sumar_y_dividir" que realiza la suma y la división de manera paralela
+for (int i = 1; i < height - 1; i++) {
+    for (int j = 1; j < width - 1; j++) {
+        // Calcular el valor promedio de los píxeles vecinos y aplicarlo al píxel actual usando SIMD
+        image[i][j] = sumar_y_dividir(image[i-1][j-1], image[i-1][j], image[i-1][j+1],
+                                      image[i][j-1], image[i][j], image[i][j+1],
+                                      image[i+1][j-1], image[i+1][j], image[i+1][j+1]);
+    }
+}
+
+
+```
+En este ejemplo, la función sumar_y_dividir utiliza instrucciones SIMD para realizar la suma y la división de manera paralela en lugar de realizar cada operación en serie. Esto acelera significativamente el proceso de suavizado de la imagen.
